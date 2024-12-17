@@ -1,15 +1,10 @@
 import fastify from 'fastify'
-import { knex } from './database'
+import { env } from './env'
+import { productsRoutes } from './routes/productsRoutes'
 
 const app = fastify()
-
-app.get('/', async () => {
-  const tables = await knex('sqlite_schema').select('*')
-  return tables
+app.register(productsRoutes, {
+  prefix: 'products',
 })
 
-app.get('/hello', () => {
-  return 'hello world'
-})
-
-app.listen({ port: 3333 }).then(() => console.log('Http server is running'))
+app.listen({ port: env.PORT }).then(() => console.log('Http server is running'))
