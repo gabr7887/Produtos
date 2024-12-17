@@ -58,4 +58,24 @@ export async function productsRoutes(app: FastifyInstance) {
 
     reply.status(204).send()
   })
+
+  app.put('/:id', async (request, reply) => {
+    const getProductParamsSchema = z.object({
+      id: z.string().uuid(),
+    })
+
+    const updateProductBodySchema = z.object({
+      name: z.string(),
+      description: z.string(),
+      price: z.number(),
+      quantity: z.number(),
+    })
+
+    const { id } = getProductParamsSchema.parse(request.params)
+    const data = updateProductBodySchema.parse(request.body)
+
+    await knex('products').where('id', id).first().update(data)
+
+    reply.status(200).send()
+  })
 }
