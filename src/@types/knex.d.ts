@@ -9,6 +9,7 @@ declare module 'knex/types/tables' {
       description: string
       price: number
       quantity: number
+      user_id: string
     }
   }
 }

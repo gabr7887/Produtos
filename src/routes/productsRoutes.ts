@@ -25,6 +25,20 @@ export async function productsRoutes(app: FastifyInstance) {
     }
   })
 
+  app.get('/user/:userId', async (request) => {
+    const getUserParamsSchema = z.object({
+      userId: z.string().uuid(),
+    })
+
+    const { userId } = getUserParamsSchema.parse(request.params)
+
+    const products = await knex('products').where('user_id', userId)
+
+    return {
+      products,
+    }
+  })
+
   app.post('/create', async (request, reply) => {
     const createProductBodySchema = z.object({
       name: z.string(),
@@ -36,12 +50,24 @@ export async function productsRoutes(app: FastifyInstance) {
     const { name, description, price, quantity } =
       createProductBodySchema.parse(request.body)
 
+    let userId = request.cookies.userId
+
+    if (!userId) {
+      userId = randomUUID()
+
+      reply.cookie('userId', userId, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 7days
+      })
+    }
+
     await knex('products').insert({
       id: randomUUID(),
       name,
       description,
       price,
       quantity,
+      user_id: userId,
     })
 
     reply.status(201).send()
